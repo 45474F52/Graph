@@ -1,0 +1,26 @@
+﻿<Application x:Class="Graph.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:Graph"
+             xmlns:viewModel="clr-namespace:Graph.ViewModel"
+             xmlns:view="clr-namespace:Graph.View"
+             StartupUri="/View/MainWindow.xaml">
+
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/Resources/Styles/MenuToggleBUtton.xaml"/>
+                <ResourceDictionary Source="/Resources/Styles/GraphControls.xaml"/>
+                <ResourceDictionary Source="/Resources/Styles/GraphVisualEditor.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+
+            <DataTemplate DataType="{x:Type viewModel:HomeVM}">
+                <view:HomeVIew/>
+            </DataTemplate>
+
+            <DataTemplate DataType="{x:Type viewModel:Graph1VM}">
+                <view:Graph1VIew/>
+            </DataTemplate>
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>
