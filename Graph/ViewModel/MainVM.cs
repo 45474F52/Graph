@@ -1,12 +1,10 @@
 ﻿using Graph.Core;
 using Graph.Model.Messages;
 using System;
-using System.Windows;
-using System.Windows.Data;
 
 namespace Graph.ViewModel
 {
-    internal class MainVM : ObservableObject
+	internal class MainVM : ObservableObject
     {
 		private object _currentView;
 		public object CurrentView
@@ -43,13 +41,12 @@ namespace Graph.ViewModel
                             case ViewModels.Graph3VM:
                                 break;
                             default:
-                                MessageBox.Show($"ViewModel с названием {message.CurrentView} не существует");
-								break;
+								throw new ArgumentException($"ViewModel с названием {message.CurrentView} не существует");
                         }
                     }
 					else
 					{
-						MessageBox.Show("Не получилось найти ViewModel с таким именем");
+						throw new ArgumentException("Не получилось найти ViewModel с таким именем");
 					}
                 }
 			});

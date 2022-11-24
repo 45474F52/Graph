@@ -18,21 +18,8 @@ namespace Graph.ViewModel
         {
             Graph = new GraphModel();
             Editor = new GraphVisualEditorVM();
-            _line = new LineSeriesModel();
-            Points = new ChartValues<ObservablePoint>
-            {
-                new ObservablePoint(-3, 9),
-                new ObservablePoint(-2, 4),
-                new ObservablePoint(-1, 1),
-                new ObservablePoint(0, 0),
-                new ObservablePoint(1, 1),
-                new ObservablePoint(2, 4),
-                new ObservablePoint(3, 9)
-            };
-            _line.Values = Points;
-            _line.Title = "Yopta";
-            
-            Series = new SeriesCollection { _line };
+            SetDefaultGraph.InitializeSeries(ref _series, ref _line, ref _points);
+            OnPropertyChanged(nameof(Series));
 
             EditGraphVisual = new RelayCommand(obj =>
             {
@@ -88,24 +75,23 @@ namespace Graph.ViewModel
             {
                 try
                 {
-                    Tuple<(double[], double[]), FunctionAnalysisModel> answer = 
+                    bool thirdArguments;
 
-                        (_functionType == FunctionType.Power || _functionType == FunctionType.Quadratic) ?
+                    if (_functionType == FunctionType.Power || _functionType == FunctionType.Quadratic)
+                    {
+                        thirdArguments = true;
+                    }
+                    else if (_functionType == FunctionType.Custom)
+                    {
+                        throw new NotImplementedException();
+                    }
+                    else
+                    {
+                        thirdArguments = false;
+                    }
 
-                            MathExpressionAnalyzer.SolveFormula(
-                                new FunctionAnalysisModel(),
-                                (MathExpressionAnalyzer.FunctionType)_functionType,
-                                7,
-                                (double)_aValue, (double)_bValue, (double)_cValue) :
-
-                        (_functionType == FunctionType.Custom) ?
-                            throw new NotImplementedException() :
-                            
-                            MathExpressionAnalyzer.SolveFormula(
-                                new FunctionAnalysisModel(),
-                                (MathExpressionAnalyzer.FunctionType)_functionType,
-                                7,
-                                (double)_aValue, (double)_bValue);
+                    Tuple<(double[], double[]), FunctionAnalysisModel> answer = MathExpressionAnalyzer.SolveFormula(new FunctionAnalysisModel(),
+                        (MathExpressionAnalyzer.FunctionType)_functionType, 7, (double)_aValue, (double)_bValue, thirdArguments ? (double)_cValue : 0.0);
 
                     (double[], double[]) XYPoints = answer.Item1;
                     FunctionAnalysis = answer.Item2;
@@ -143,7 +129,10 @@ namespace Graph.ViewModel
             _pattern = @"[-+]?\d*[Xx]\^[-+]?\d+[-+]?\d*[Xx][-+]\d+";
             _regex = new Regex(_pattern, RegexOptions.IgnoreCase);
         }
-        private ChartValues<ObservablePoint> Points { get; set; }
+
+        private ChartValues<ObservablePoint> _points;
+        private ChartValues<ObservablePoint> Points { get => _points; set => _points = value; }
+
         private GraphVisualEditorVM Editor { get; set; }
         private readonly string _pattern;
         private readonly Regex _regex;

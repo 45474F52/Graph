@@ -104,6 +104,7 @@
     <Compile Include="Model\GraphModel.cs" />
     <Compile Include="Model\LineSeriesModel.cs" />
     <Compile Include="Model\MathExpression\MathExpressionAnalyzer.cs" />
+    <Compile Include="Model\SetDefaultGraph.cs" />
     <Compile Include="Resources\Effects\AccentData.cs" />
     <Compile Include="Resources\Effects\BlureEffect.cs" />
     <Compile Include="ViewModel\Graph1VM.cs" />
