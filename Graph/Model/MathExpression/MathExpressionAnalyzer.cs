@@ -1,80 +1,76 @@
 ﻿using System;
+using System.Windows;
+using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 
+[assembly: InternalsVisibleTo("AnalyzerTester")]
 namespace Graph.Model.MathExpression
 {
-    public static class MathExpressionAnalyzer
+    internal static class MathExpressionAnalyzer
     {
-        public static string[] Analyze(string expression, string regExpr)
+        internal static string[] Analyze(string expression, string regExpr)
         {
             throw new NotImplementedException();
         }
 
-        internal static Tuple<(double[], double[]), FunctionAnalysisModel> SolveFormula(
-            FunctionAnalysisModel functionalAnalysis, FunctionType functionType, uint numberOfPoints, params double[] arguments /*a, b, c*/)
+        internal static Tuple<(double[], double[]), FunctionAnalysisModel> SolveFormula(FunctionAnalysisModel functionalAnalysis,
+            FunctionsEnum.FunctionType functionType, uint numberOfPoints, params double[] arguments)
         {
-            double[] xPoints = new double[numberOfPoints];
-            double[] yPoints = new double[numberOfPoints];
+            (double[], double[]) points = (new double[numberOfPoints], new double[numberOfPoints]);
 
-            int bound = (int)Math.Truncate((double)numberOfPoints / 2);
+            int bound = (int)Math.Truncate((double)(numberOfPoints / 2));
 
             switch (functionType)
             {
-                case FunctionType.Linear:
-                    yPoints = GetLinearPoints(ref bound, ref xPoints, ref arguments[0], ref arguments[1]);
+                case FunctionsEnum.FunctionType.Linear:
+                    SetLinearPoints(bound, ref points, arguments[0], arguments[1]);
                     break;
-                case FunctionType.Quadratic:
-                    yPoints = GetQuadraticPoints(ref functionalAnalysis, ref bound, ref xPoints, ref arguments[0], ref arguments[1], ref arguments[2]);
+                case FunctionsEnum.FunctionType.Quadratic:
+                    SetQuadraticPoints(ref functionalAnalysis, bound, ref points, arguments[0], arguments[1], arguments[2]);
                     break;
-                case FunctionType.Power:
+                case FunctionsEnum.FunctionType.Power:
                     break;
-                case FunctionType.Exponential:
+                case FunctionsEnum.FunctionType.Exponential:
                     break;
-                case FunctionType.Logarithmic:
+                case FunctionsEnum.FunctionType.Logarithmic:
                     break;
-                case FunctionType.Sinusoid:
+                case FunctionsEnum.FunctionType.Sinusoid:
+                    SetSinusoidPoints(ref functionalAnalysis, ref points, arguments[0], arguments[1]);
                     break;
-                case FunctionType.Cosine:
+                case FunctionsEnum.FunctionType.Cosine:
                     break;
-                case FunctionType.Tangentoid:
+                case FunctionsEnum.FunctionType.Tangentoid:
                     break;
-                case FunctionType.Cotangenoid:
+                case FunctionsEnum.FunctionType.Cotangenoid:
                     break;
                 default:
                     throw new NotImplementedException();
             }
 
-            return new Tuple<(double[], double[]), FunctionAnalysisModel>(( xPoints, yPoints ), functionalAnalysis);
+            return new Tuple<(double[], double[]), FunctionAnalysisModel>(points, functionalAnalysis);
         }
 
-        private static double[] GetLinearPoints(ref int bound, ref double[] xPoints, ref double a, ref double b)
+        private static void SetLinearPoints(int bound, ref (double[], double[]) points, double a, double b)
         {
-            int length = xPoints.Length;
-            xPoints = GetXPoints(ref length, ref bound);
-            double[] yPoints = new double[length];
+            points.Item1 = XPointsGetter.GetPoints(points.Item1.Length, bound);
 
-            for (int i = 0; i < xPoints.Length; i++)
+            for (int i = 0; i < points.Item1.Length; i++)
             {
-                yPoints[i] = a * xPoints[i] + b;
+                points.Item2[i] = a * points.Item1[i] + b;
             }
-
-            return yPoints;
         }
 
-        private static double[] GetQuadraticPoints(
-            ref FunctionAnalysisModel functionAnalysis, ref int bound, ref double[] xPoints, ref double a, ref double b, ref double c)
+        private static void SetQuadraticPoints(
+            ref FunctionAnalysisModel functionAnalysis, int bound, ref (double[], double[]) points, double a, double b, double c)
         {
             if (a == 0)
                 throw new ArgumentException("аргумент \"a\" не может быть равным 0");
 
-            int length = xPoints.Length;
-            double[] yPoints = new double[length];
-
-            //вершина параболы
             double x0 = -b / (2 * a);
             double y0 = c - (Math.Pow(b, 2) / (4 * a));
 
             double D = Math.Pow(b, 2) - 4 * a * c;
-            double? x1, x2;//нули функции (пересечения с осью X)
+            double? x1, x2;
 
             if (D > 0)
             {
@@ -93,11 +89,11 @@ namespace Graph.Model.MathExpression
                 functionAnalysis.ZerosOfFunc = $"\u2205";
             }
 
-            xPoints = GetSymmetricalXPoints(ref length, ref bound, ref x0);
+            points.Item1 = XPointsGetter.GetSymmetricalXPoints(points.Item1.Length, bound, x0);
 
-            for (int i = 0; i < xPoints.Length; i++)
+            for (int i = 0; i < points.Item1.Length; i++)
             {
-                yPoints[i] = a * Math.Pow(xPoints[i], 2) + b * xPoints[i] + c;
+                points.Item2[i] = a * Math.Pow(points.Item1[i], 2) + b * points.Item1[i] + c;
             }
 
             if (a < 0)
@@ -116,143 +112,50 @@ namespace Graph.Model.MathExpression
             functionAnalysis.IntersWithAxisY = $"(0 ; {c})";
 
             functionAnalysis.Parity = "\u003f\u00bf\u003f";
-
-            return yPoints;
         }
 
-        private static double[] GetXPoints(ref int numberOfPoints, ref int bound)
+        [Obsolete("Плохая реализация метода с независимыми переменными")]
+        private static void SetSinusoidPoints(ref FunctionAnalysisModel functionalAnalysis, ref (double[], double[]) points, double amplitude, double b)
         {
-            double[] xPoints = new double[numberOfPoints];
-            int index = 0;
+            if (b == 0)
+                throw new ArgumentException("аргумент \"b\" не может быть равным 0");
 
-            if (numberOfPoints % 2 == 0)
-            {
-                for (int j = -bound; j < bound - 1; j++)
-                {
-                    xPoints[index] = j;
-                    index++;
-                }
-            }
-            else
-            {
-                for (int j = -bound; j < 0; j++)
-                {
-                    xPoints[index] = j;
-                    index++;
-                }
+            double X0 = 2;
+            double X1 = 5;
+            double scale = 1;
+            uint stepsCount = 10;
 
-                for (int g = 0; g <= bound; g++)
-                {
-                    xPoints[index] = g;
-                    index++;
-                }
-            }
-            return xPoints;
-        }
-
-        private static double[] GetSymmetricalXPoints(ref int numberOfPoints, ref int bound, ref double xVertex)
-        {
-            double[] xPoints = new double[numberOfPoints];
-            int pointsCount = 0;
-            int firstHalf = 0;
-            int secondHalf = 1;
-
-            if (numberOfPoints % 2 == 0)
+            (double x0, double x1) = (X0, X1);
+            
+            if (x0 > x1)
             {
-                for (int i = 0; i < numberOfPoints; i++)
-                {
-                    if (pointsCount < bound)
-                    {
-                        if (firstHalf < bound)
-                        {
-                            xPoints[i] = xVertex - bound + firstHalf;
-                            pointsCount++;
-                        }
-                        firstHalf++;
-                    }
-                    else
-                    {
-                        if (secondHalf <= bound)
-                        {
-                            xPoints[i] = xVertex + secondHalf;
-                            pointsCount++;
-                        }
-                        secondHalf++;
-                    }
-                }
-            }
-            else
-            {
-                for (int i = 0; i < numberOfPoints; i++)
-                {
-                    if (pointsCount < bound)
-                    {
-                        if (firstHalf < bound)
-                        {
-                            xPoints[i] = xVertex - bound + firstHalf;
-                            pointsCount++;
-                        }
-                        firstHalf++;
-                    }
-                    else if (pointsCount == bound)
-                    {
-                        xPoints[i] = xVertex;
-                        pointsCount++;
-                    }
-                    else
-                    {
-                        if (secondHalf <= bound)
-                        {
-                            xPoints[i] = xVertex + secondHalf;
-                            pointsCount++;
-                        }
-                        secondHalf++;
-                    }
-                }
+                (x0, x1) = (x1, x0);
             }
 
-            return xPoints;
-        }
+            double step = (x1 - x0) / stepsCount;
 
-        public static FunctionType GetFunctionType(ref string expressionText)
-        {
-            switch (expressionText)
+            double offset = 0;
+            double x = x0;
+
+            List<Point> newPoints = new List<Point>
             {
-                case "f(x) = ax + b":
-                    return FunctionType.Linear;
-                case "f(x) = ax^2 + bx + c":
-                    return FunctionType.Quadratic;
-                case "f(x) = ax^(b/c)":
-                    return FunctionType.Power;
-                case "f(x) = a^bx":
-                    return FunctionType.Exponential;
-                case "f(x) = log_a(bx)":
-                    return FunctionType.Logarithmic;
-                case "f(x) = asin(bx)":
-                    return FunctionType.Sinusoid;
-                case "f(x) = acos(bx)":
-                    return FunctionType.Cosine;
-                case "f(x) = atg(bx)":
-                    return FunctionType.Tangentoid;
-                case "f(x) = actg(bx)":
-                    return FunctionType.Cotangenoid;
-                default:
-                    return FunctionType.Custom;
-            }
-        }
+                new Point(offset, -Math.Sin(x) * scale)
+            };
 
-        public enum FunctionType
-        {
-            Custom,
-            Linear,
-            Quadratic,
-            Power,
-            Exponential,
-            Logarithmic,
-            Sinusoid,
-            Cosine,
-            Tangentoid,
-            Cotangenoid
+            for (offset += step, x += step; x < x1; offset += step, x += step)
+            {
+                newPoints.Add(new Point(offset * scale, -Math.Sin(x) * scale));
+            }
+            newPoints.Add(new Point((x1 - x0) * scale, -Math.Sin(x1) * scale));
+
+            points.Item1 = new double[newPoints.Count];
+            points.Item2 = new double[newPoints.Count];
+
+            for (int i = 0; i < newPoints.Count; i++)
+            {
+                points.Item1[i] = newPoints[i].X;
+                points.Item2[i] = newPoints[i].Y;
+            }
         }
     }
 }

@@ -8,6 +8,6 @@
             App.Messenger.Send(this);
         }
 
-        public string CurrentView { get; private set; }
+        internal string CurrentView { get; private set; }
     }
 }

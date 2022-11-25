@@ -4,10 +4,10 @@ using Graph.Model.MathExpression;
 namespace AnalyzerTester
 {
     [TestClass]
-    public class UnitTest1
+    public class TestAnalyzeFormula
     {
         [TestMethod]
-        public void TestMethod1()
+        public void AnalyzeFormulas()
         {
             string regExpr = @"[-+]?\d*[Xx]\^[-+]?\d+[-+]?\d*[Xx][-+]\d+";
 

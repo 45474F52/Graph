@@ -6,14 +6,12 @@ namespace Graph.Model
 {
     public class LineSeriesModel : LineSeries, INotifyPropertyChanged
     {
-        public void SetFillColor(SolidColorBrush color, string callerMemberName)
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        internal void SetFillColor(SolidColorBrush color, string callerMemberName)
         {
             Fill = color;
-            OnPropertyChanged(callerMemberName);
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(callerMemberName));
         }
-
-        public event PropertyChangedEventHandler PropertyChanged;
-        public void OnPropertyChanged(string name = "") =>
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
     }
 }

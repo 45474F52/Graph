@@ -10,6 +10,7 @@ namespace Graph.ViewModel
     {
         public string Title => "Graph Visual Editor";
         public bool IsDirty { get; private set; } = default;
+
         public RelayCommand SaveCommand { get; private set; }
         public RelayCommand ReturnCommand { get; private set; }
         public RelayCommand ChangeThemeCommand { get; private set; }
@@ -48,7 +49,7 @@ namespace Graph.ViewModel
             });
         }
 
-        public bool ShowEditorDialog() =>
+        internal bool ShowEditorDialog() =>
             (bool)new GraphVisualEditorView() { Owner = Application.Current.MainWindow, DataContext = this }.ShowDialog();
 
         private string _header;

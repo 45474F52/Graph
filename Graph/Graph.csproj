@@ -99,6 +99,9 @@
     <Compile Include="Core\Messenger.cs" />
     <Compile Include="Core\ObservableObject.cs" />
     <Compile Include="Core\RelayCommand.cs" />
+    <Compile Include="Model\ErrorHandler.cs" />
+    <Compile Include="Model\MathExpression\FunctionsEnum.cs" />
+    <Compile Include="Model\MathExpression\XPointsGetter.cs" />
     <Compile Include="Model\Messages\CurrentViewMessage.cs" />
     <Compile Include="Model\FunctionAnalysisModel.cs" />
     <Compile Include="Model\GraphModel.cs" />

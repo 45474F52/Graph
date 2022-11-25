@@ -5,8 +5,6 @@ using LiveCharts;
 using LiveCharts.Defaults;
 using LiveCharts.Wpf;
 using System;
-using System.Text.RegularExpressions;
-using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 
@@ -21,41 +19,7 @@ namespace Graph.ViewModel
             SetDefaultGraph.InitializeSeries(ref _series, ref _line, ref _points);
             OnPropertyChanged(nameof(Series));
 
-            EditGraphVisual = new RelayCommand(obj =>
-            {
-                if (Editor.ShowEditorDialog())
-                {
-                    if (Editor.IsDirty)
-                    {
-                        Graph.Header = Editor.Header;
-
-                        if (Editor.ThemeValue == GraphVisualEditorVM.Theme.Customized)
-                        {
-                            Graph.BgColor = Editor.BgColor;
-                            Graph.FgColor = Editor.FbColor;
-
-                            if (Editor.FillColor != null)
-                            {
-                                _line.SetFillColor(new SolidColorBrush(Editor.FillColor.Color) { Opacity = .4 }, "Series");
-                            }
-                        }
-                        else if (Editor.ThemeValue == GraphVisualEditorVM.Theme.Light)
-                        {
-                            Graph.BgColor = Brushes.White;
-                            Graph.FgColor = Brushes.Black;
-
-                            _line.SetFillColor(new SolidColorBrush(Brushes.LightSkyBlue.Color) { Opacity = .4 }, "Series");
-                        }
-                        else
-                        {
-                            Graph.BgColor = new SolidColorBrush(Color.FromArgb(255, 0x22, 0x20, 0x2f));//#22202f
-                            Graph.FgColor = Brushes.White;
-
-                            _line.SetFillColor(new SolidColorBrush(Brushes.Red.Color) { Opacity = .4 }, "Series");
-                        }
-                    }
-                }
-            });
+            EditGraphVisual = new RelayCommand(EditorInteractionsLogic);
 
             Analysis = new RelayCommand(obj =>
             {
@@ -71,50 +35,7 @@ namespace Graph.ViewModel
                 }
             });
 
-            Run = new RelayCommand(obj =>
-            {
-                try
-                {
-                    bool thirdArguments;
-
-                    if (_functionType == FunctionType.Power || _functionType == FunctionType.Quadratic)
-                    {
-                        thirdArguments = true;
-                    }
-                    else if (_functionType == FunctionType.Custom)
-                    {
-                        throw new NotImplementedException();
-                    }
-                    else
-                    {
-                        thirdArguments = false;
-                    }
-
-                    Tuple<(double[], double[]), FunctionAnalysisModel> answer = MathExpressionAnalyzer.SolveFormula(new FunctionAnalysisModel(),
-                        (MathExpressionAnalyzer.FunctionType)_functionType, 7, (double)_aValue, (double)_bValue, thirdArguments ? (double)_cValue : 0.0);
-
-                    (double[], double[]) XYPoints = answer.Item1;
-                    FunctionAnalysis = answer.Item2;
-
-                    Points = new ChartValues<ObservablePoint>();
-                    for (int i = 0; i < XYPoints.Item1.Length; i++)
-                    {
-                        Points.Add(new ObservablePoint(XYPoints.Item1[i], XYPoints.Item2[i]));
-                    }
-
-                    _line.Values = Points;
-
-                    Series = new SeriesCollection { _line };
-                }
-                catch (ArgumentException ex)
-                {
-                    MessageBox.Show(ex.Message, ex.ParamName, MessageBoxButton.OK, MessageBoxImage.Error);
-                }
-                catch (InvalidOperationException)
-                {
-                    MessageBox.Show("Поля аргументов не могут быть пустыми", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
-                }
-            });
+            Run = new RelayCommand(CreatingAndDisplayingGraph);
 
             Clear = new RelayCommand(obj =>
             {
@@ -127,28 +48,27 @@ namespace Graph.ViewModel
             });
 
             _pattern = @"[-+]?\d*[Xx]\^[-+]?\d+[-+]?\d*[Xx][-+]\d+";
-            _regex = new Regex(_pattern, RegexOptions.IgnoreCase);
         }
+
+        private LineSeriesModel _line;
 
         private ChartValues<ObservablePoint> _points;
         private ChartValues<ObservablePoint> Points { get => _points; set => _points = value; }
 
         private GraphVisualEditorVM Editor { get; set; }
         private readonly string _pattern;
-        private readonly Regex _regex;
-        private readonly LineSeriesModel _line;
 
         public string Title => "Graph_1";
 
         public GraphModel Graph { get; private set; }
+
         public RelayCommand EditGraphVisual { get; private set; }
         public RelayCommand Analysis { get; private set; }
         public RelayCommand RefreshGraph { get; private set; }
         public RelayCommand Clear { get; private set; }
         public RelayCommand Run { get; private set; }
 
-        //private string _finishedExpr;
-        private FunctionType _functionType;
+        private FunctionsEnum.FunctionType _functionType;
 
         private FunctionAnalysisModel _functionalAnalysis;
         public FunctionAnalysisModel FunctionAnalysis
@@ -295,18 +215,87 @@ namespace Graph.ViewModel
             }
         }
 
+        private void EditorInteractionsLogic(object obj)
+        {
+            if (Editor.ShowEditorDialog())
+            {
+                if (Editor.IsDirty)
+                {
+                    Graph.Header = Editor.Header;
+
+                    if (Editor.ThemeValue == GraphVisualEditorVM.Theme.Customized)
+                    {
+                        Graph.BgColor = Editor.BgColor;
+                        Graph.FgColor = Editor.FbColor;
+
+                        if (Editor.FillColor != null)
+                        {
+                            _line.SetFillColor(new SolidColorBrush(Editor.FillColor.Color) { Opacity = .4 }, nameof(Series));
+                        }
+                    }
+                    else if (Editor.ThemeValue == GraphVisualEditorVM.Theme.Light)
+                    {
+                        Graph.BgColor = Brushes.White;
+                        Graph.FgColor = Brushes.Black;
+
+                        _line.SetFillColor(new SolidColorBrush(Brushes.LightSkyBlue.Color) { Opacity = .4 }, nameof(Series));
+                    }
+                    else
+                    {
+                        Graph.BgColor = new SolidColorBrush(Color.FromArgb(255, 0x22, 0x20, 0x2f));//#22202f
+                        Graph.FgColor = Brushes.White;
+
+                        _line.SetFillColor(new SolidColorBrush(Brushes.Red.Color) { Opacity = .4 }, nameof(Series));
+                    }
+                }
+            }
+        }
+
+        private void CreatingAndDisplayingGraph(object obj)
+        {
+            try
+            {
+                Tuple<(double[], double[]), FunctionAnalysisModel> answer = MathExpressionAnalyzer.SolveFormula(new FunctionAnalysisModel(),
+                    _functionType, 7, (double)_aValue, (double)_bValue, (double)_cValue);
+
+                (double[], double[]) XYPoints = answer.Item1;
+                FunctionAnalysis = answer.Item2;
+
+                Points = new ChartValues<ObservablePoint>();
+                for (int i = 0; i < XYPoints.Item1.Length; i++)
+                {
+                    Points.Add(new ObservablePoint(XYPoints.Item1[i], XYPoints.Item2[i]));
+                }
+
+                _line.Values = Points;
+                Series = new SeriesCollection { _line };
+            }
+            catch (ArgumentException ex)
+            {
+                ErrorHandler.ShowMessage(ex.Message, ex.ParamName);
+            }
+            catch (InvalidOperationException)
+            {
+                ErrorHandler.ShowMessage("Поля аргументов не могут быть пустыми", "Ошибка");
+            }
+            catch (NotImplementedException)
+            {
+                ErrorHandler.ShowMessage("Обработка пользовательского уравнения не реализована", "Упс...");
+            }
+        }
+
         private void SetFieldsVisibility(ref string expression)
         {
-            _functionType = (FunctionType)MathExpressionAnalyzer.GetFunctionType(ref expression);
+            _functionType = FunctionsEnum.GetFunctionType(ref expression);
             switch (_functionType)
             {
-                case FunctionType.Quadratic:
-                case FunctionType.Power:
+                case FunctionsEnum.FunctionType.Quadratic:
+                case FunctionsEnum.FunctionType.Power:
                     AVisible = true;
                     BVisible = true;
                     CVisible = true;
                     break;
-                case FunctionType.Custom:
+                case FunctionsEnum.FunctionType.Custom:
                     AVisible = false;
                     BVisible = false;
                     CVisible = false;
@@ -317,20 +306,6 @@ namespace Graph.ViewModel
                     CVisible = false;
                     break;
             }
-        }
-
-        private enum FunctionType
-        {
-            Custom,
-            Linear,
-            Quadratic,
-            Power,
-            Exponential,
-            Logarithmic,
-            Sinusoid,
-            Cosine,
-            Tangentoid,
-            Cotangenoid
         }
     }
 }
