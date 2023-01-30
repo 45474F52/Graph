@@ -32,7 +32,7 @@
             return xPoints;
         }
 
-        internal static double[] GetSymmetricalXPoints(int numberOfPoints, int bound, double xVertex)
+        internal static double[] GetSymmetricalPoints(int numberOfPoints, int bound, double xVertex)
         {
             double[] xPoints = new double[numberOfPoints];
             int pointsCount = 0;

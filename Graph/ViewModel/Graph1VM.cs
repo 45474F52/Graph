@@ -1,5 +1,6 @@
 ﻿using Graph.Core;
 using Graph.Model;
+using Graph.Model.ErrorHandle;
 using Graph.Model.MathExpression;
 using LiveCharts;
 using LiveCharts.Defaults;
@@ -70,13 +71,13 @@ namespace Graph.ViewModel
 
         private FunctionsEnum.FunctionType _functionType;
 
-        private FunctionAnalysisModel _functionalAnalysis;
+        private FunctionAnalysisModel _functionAnalysis;
         public FunctionAnalysisModel FunctionAnalysis
         {
-            get => _functionalAnalysis;
+            get => _functionAnalysis;
             set
             {
-                _functionalAnalysis = value;
+                _functionAnalysis = value;
                 OnPropertyChanged();
             }
         }
@@ -255,16 +256,17 @@ namespace Graph.ViewModel
         {
             try
             {
-                Tuple<(double[], double[]), FunctionAnalysisModel> answer = MathExpressionAnalyzer.SolveFormula(new FunctionAnalysisModel(),
-                    _functionType, 7, (double)_aValue, (double)_bValue, (double)_cValue);
-
-                (double[], double[]) XYPoints = answer.Item1;
-                FunctionAnalysis = answer.Item2;
+                FunctionAnalysis = new FunctionAnalysisModel();
+                var answer = new MathExpressionAnalyzer().SolveFormula(
+                    _functionAnalysis,
+                    _functionType,
+                    7,
+                    (double)_aValue, (double)_bValue, (double)_cValue);
 
                 Points = new ChartValues<ObservablePoint>();
-                for (int i = 0; i < XYPoints.Item1.Length; i++)
+                for (int i = 0; i < answer.Item1.Item1.Length; i++)
                 {
-                    Points.Add(new ObservablePoint(XYPoints.Item1[i], XYPoints.Item2[i]));
+                    Points.Add(new ObservablePoint(answer.Item1.Item1[i], answer.Item1.Item2[i]));
                 }
 
                 _line.Values = Points;
@@ -272,15 +274,15 @@ namespace Graph.ViewModel
             }
             catch (ArgumentException ex)
             {
-                ErrorHandler.ShowMessage(ex.Message, ex.ParamName);
+                ErrorMessenger.ShowMessage(ex.Message, ex.ParamName);
             }
             catch (InvalidOperationException)
             {
-                ErrorHandler.ShowMessage("Поля аргументов не могут быть пустыми", "Ошибка");
+                ErrorMessenger.ShowMessage("Поля аргументов не могут быть пустыми", "Ошибка");
             }
             catch (NotImplementedException)
             {
-                ErrorHandler.ShowMessage("Обработка пользовательского уравнения не реализована", "Упс...");
+                ErrorMessenger.ShowMessage("Обработка пользовательского уравнения не реализована", "Упс...");
             }
         }
 

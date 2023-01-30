@@ -6,14 +6,66 @@ using System.Runtime.CompilerServices;
 [assembly: InternalsVisibleTo("AnalyzerTester")]
 namespace Graph.Model.MathExpression
 {
-    internal static class MathExpressionAnalyzer
+    internal class MathExpressionAnalyzer
     {
+        private FunctionsEnum.FunctionType _functionType;
+        private FunctionAnalysisModel _analysisModel;
+        private uint _pointsCount;
+        private int _bound;
+        private double _a;
+        private double _b;
+        private double _c;
+
         internal static string[] Analyze(string expression, string regExpr)
         {
             throw new NotImplementedException();
         }
 
-        internal static Tuple<(double[], double[]), FunctionAnalysisModel> SolveFormula(FunctionAnalysisModel functionalAnalysis,
+        //internal (double[], double[]) SolveFormula(ref FunctionAnalysisModel analysisModel, in FunctionsEnum.FunctionType functionType, in uint pointsCount, in double a, in double b, in double c)
+        //{
+        //    _functionType = functionType;
+        //    _pointsCount = pointsCount;
+        //    _a = a;
+        //    _b = b;
+        //    _c = c;
+
+        //    _bound = (int)Math.Truncate((double)(pointsCount / 2));
+        //    (double[], double[]) points = (new double[pointsCount], new double[pointsCount]);
+
+        //    ChoosingMethod(functionType);
+
+        //    return points;
+        //}
+
+        private void ChoosingMethod(in FunctionsEnum.FunctionType functionType)
+        {
+            switch (functionType)
+            {
+                case FunctionsEnum.FunctionType.Linear:
+                    //SetLinearPoints();
+                    break;
+                case FunctionsEnum.FunctionType.Quadratic:
+                    break;
+                case FunctionsEnum.FunctionType.Power:
+                    break;
+                case FunctionsEnum.FunctionType.Exponential:
+                    break;
+                case FunctionsEnum.FunctionType.Logarithmic:
+                    break;
+                case FunctionsEnum.FunctionType.Sinusoid:
+                    break;
+                case FunctionsEnum.FunctionType.Cosine:
+                    break;
+                case FunctionsEnum.FunctionType.Tangentoid:
+                    break;
+                case FunctionsEnum.FunctionType.Cotangenoid:
+                    break;
+                default:
+                    throw new NotImplementedException();
+            }
+        }
+
+        internal Tuple<(double[], double[]), FunctionAnalysisModel> SolveFormula(FunctionAnalysisModel functionalAnalysis,
             FunctionsEnum.FunctionType functionType, uint numberOfPoints, params double[] arguments)
         {
             (double[], double[]) points = (new double[numberOfPoints], new double[numberOfPoints]);
@@ -23,7 +75,7 @@ namespace Graph.Model.MathExpression
             switch (functionType)
             {
                 case FunctionsEnum.FunctionType.Linear:
-                    SetLinearPoints(bound, ref points, arguments[0], arguments[1]);
+                    SetLinearPoints(ref points);
                     break;
                 case FunctionsEnum.FunctionType.Quadratic:
                     SetQuadraticPoints(ref functionalAnalysis, bound, ref points, arguments[0], arguments[1], arguments[2]);
@@ -35,7 +87,7 @@ namespace Graph.Model.MathExpression
                 case FunctionsEnum.FunctionType.Logarithmic:
                     break;
                 case FunctionsEnum.FunctionType.Sinusoid:
-                    SetSinusoidPoints(ref functionalAnalysis, ref points, arguments[0], arguments[1]);
+                    //SetSinusoidPoints(ref functionalAnalysis, ref points, arguments[0], arguments[1]);
                     break;
                 case FunctionsEnum.FunctionType.Cosine:
                     break;
@@ -50,13 +102,13 @@ namespace Graph.Model.MathExpression
             return new Tuple<(double[], double[]), FunctionAnalysisModel>(points, functionalAnalysis);
         }
 
-        private static void SetLinearPoints(int bound, ref (double[], double[]) points, double a, double b)
+        private void SetLinearPoints(ref (double[], double[]) points)
         {
-            points.Item1 = XPointsGetter.GetPoints(points.Item1.Length, bound);
+            points.Item1 = XPointsGetter.GetPoints(points.Item1.Length, _bound);
 
             for (int i = 0; i < points.Item1.Length; i++)
             {
-                points.Item2[i] = a * points.Item1[i] + b;
+                points.Item2[i] = _a * points.Item1[i] + _b;
             }
         }
 
@@ -89,7 +141,7 @@ namespace Graph.Model.MathExpression
                 functionAnalysis.ZerosOfFunc = $"\u2205";
             }
 
-            points.Item1 = XPointsGetter.GetSymmetricalXPoints(points.Item1.Length, bound, x0);
+            points.Item1 = XPointsGetter.GetSymmetricalPoints(points.Item1.Length, bound, x0);
 
             for (int i = 0; i < points.Item1.Length; i++)
             {

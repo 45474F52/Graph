@@ -60,9 +60,11 @@
             <RadioButton Content="Graph_1"
                          Command="{Binding ToGraph1}"/>
             
-            <RadioButton Content="Graph_2"/>
+            <RadioButton Content="Graph_2"
+                         IsEnabled="False" />
             
-            <RadioButton Content="Graph_3"/>
+            <RadioButton Content="Graph_3"
+                         IsEnabled="False" />
         </StackPanel>
 
         <ContentControl Grid.Row="1"

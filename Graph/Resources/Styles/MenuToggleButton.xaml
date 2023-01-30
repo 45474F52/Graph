@@ -50,6 +50,10 @@
             <Trigger Property="IsChecked" Value="True">
                 <Setter Property="Background" Value="#22202f"/>
             </Trigger>
+            <Trigger Property="IsEnabled" Value="False">
+                <Setter Property="Foreground" Value="Gray" />
+                <Setter Property="Cursor" Value="Arrow" />
+            </Trigger>
         </Style.Triggers>
     </Style>
 
