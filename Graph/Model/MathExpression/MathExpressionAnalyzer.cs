@@ -8,62 +8,9 @@ namespace Graph.Model.MathExpression
 {
     internal class MathExpressionAnalyzer
     {
-        private FunctionsEnum.FunctionType _functionType;
-        private FunctionAnalysisModel _analysisModel;
-        private uint _pointsCount;
         private int _bound;
         private double _a;
         private double _b;
-        private double _c;
-
-        internal static string[] Analyze(string expression, string regExpr)
-        {
-            throw new NotImplementedException();
-        }
-
-        //internal (double[], double[]) SolveFormula(ref FunctionAnalysisModel analysisModel, in FunctionsEnum.FunctionType functionType, in uint pointsCount, in double a, in double b, in double c)
-        //{
-        //    _functionType = functionType;
-        //    _pointsCount = pointsCount;
-        //    _a = a;
-        //    _b = b;
-        //    _c = c;
-
-        //    _bound = (int)Math.Truncate((double)(pointsCount / 2));
-        //    (double[], double[]) points = (new double[pointsCount], new double[pointsCount]);
-
-        //    ChoosingMethod(functionType);
-
-        //    return points;
-        //}
-
-        private void ChoosingMethod(in FunctionsEnum.FunctionType functionType)
-        {
-            switch (functionType)
-            {
-                case FunctionsEnum.FunctionType.Linear:
-                    //SetLinearPoints();
-                    break;
-                case FunctionsEnum.FunctionType.Quadratic:
-                    break;
-                case FunctionsEnum.FunctionType.Power:
-                    break;
-                case FunctionsEnum.FunctionType.Exponential:
-                    break;
-                case FunctionsEnum.FunctionType.Logarithmic:
-                    break;
-                case FunctionsEnum.FunctionType.Sinusoid:
-                    break;
-                case FunctionsEnum.FunctionType.Cosine:
-                    break;
-                case FunctionsEnum.FunctionType.Tangentoid:
-                    break;
-                case FunctionsEnum.FunctionType.Cotangenoid:
-                    break;
-                default:
-                    throw new NotImplementedException();
-            }
-        }
 
         internal Tuple<(double[], double[]), FunctionAnalysisModel> SolveFormula(FunctionAnalysisModel functionalAnalysis,
             FunctionsEnum.FunctionType functionType, uint numberOfPoints, params double[] arguments)

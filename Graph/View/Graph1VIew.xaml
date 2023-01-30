@@ -137,10 +137,10 @@
                                     9)    ctg (ctg(x) = tg((PI / 2) - x))
                                 -->
 
-                                <ComboBoxItem IsSelected="True"
-                                              Content="f(x) = ax + b"/>
+                                <ComboBoxItem Content="f(x) = ax + b"/>
 
-                                <ComboBoxItem Content="f(x) = ax^2 + bx + c"/>
+                                <ComboBoxItem IsSelected="True"
+                                              Content="f(x) = ax^2 + bx + c"/>
 
                                 <ComboBoxItem Content="f(x) = ax^(b/c)"/>
 
@@ -156,16 +156,16 @@
 
                                 <ComboBoxItem Content="f(x) = actg(bx)"/>
 
-                                <!--<ComboBox.Style>
+                                <ComboBox.Style>
                                     <Style TargetType="{x:Type ComboBox}">
-                                        <Style.Triggers>
+                                        <!--<Style.Triggers>
                                             <Trigger Property="SelectedIndex" Value="0">
                                                 <Setter Property="IsEditable" Value="True"/>
                                             </Trigger>
                                         </Style.Triggers>
-                                        <Setter Property="IsEditable" Value="False"/>
+                                        <Setter Property="IsEditable" Value="False"/>-->
                                     </Style>
-                                </ComboBox.Style>-->
+                                </ComboBox.Style>
                             </ComboBox>
 
                             <Label FontSize="14"
